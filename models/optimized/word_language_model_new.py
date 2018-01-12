@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import torch.utils.checkpoint_new as checkpoint_new
+import torch.utils.checkpoint as checkpoint
 from torch.autograd import Variable, Function
 
 import math, pdb
@@ -78,7 +78,7 @@ class RNNModel(nn.Module):
             end = start + chunk_size - 1
             if j == (chunks - 1):
                 end = total_modules - 1
-            out = checkpoint_new.checkpoint(self.custom(start, end), emb, hidden[0], hidden[1])
+            out = checkpoint.checkpoint(self.custom(start, end), emb, hidden[0], hidden[1])
             output.append(out[0])
             hidden = (out[1], out[2])
         output = torch.cat(output, 0)
