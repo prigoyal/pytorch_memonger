@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import pdb, math
 from torch.autograd import Variable, Function
-from torch.utils.checkpoint_new import checkpoint, checkpoint_sequential
+from torch.utils.checkpoint import checkpoint, checkpoint_sequential
 from collections import OrderedDict
 import os, time, sys
 from subprocess import Popen, PIPE

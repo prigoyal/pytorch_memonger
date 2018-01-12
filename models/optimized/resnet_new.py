@@ -3,8 +3,7 @@ import math
 import pdb, time, sys
 from collections import OrderedDict
 from torch.autograd import Variable, Function
-# from torch.utils.checkpoint import checkpoint, checkpoint_sequential
-from torch.utils.checkpoint_new import checkpoint, checkpoint_sequential
+from torch.utils.checkpoint import checkpoint, checkpoint_sequential
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152', 'resnet200', 'resnet1001']
