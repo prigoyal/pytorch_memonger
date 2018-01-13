@@ -112,20 +112,10 @@ class DenseNet(nn.Module):
         self.features.add_module('norm5', nn.BatchNorm2d(num_features))
         self.classifier = nn.Linear(num_features, num_classes)
 
-    def custom(self):
-        def custom_forward(start, end, modules):
-            def forward_extended(*inputs):
-                input = inputs[0]
-                for j in range(start, end + 1):
-                    input = modules[j](input)
-                return input
-            return forward_extended
-        return custom_forward
-
     def forward(self, x, chunks=None):
         modules = [module for k, module in self._modules.items()][0]
         input_var = Variable(x.data, requires_grad=True)
-        input_var = checkpoint_sequential(modules, chunks, self.custom(), input_var)
+        input_var = checkpoint_sequential(modules, chunks, input_var)
         input_var = F.relu(input_var, inplace=True)
         input_var = F.avg_pool2d(input_var, kernel_size=7, stride=1).view(input_var.size(0), -1)
         input_var = self.classifier(input_var)
