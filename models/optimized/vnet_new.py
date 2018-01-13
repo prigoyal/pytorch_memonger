@@ -163,19 +163,14 @@ class VNet(nn.Module):
 
     # fits 8 images - runtime is 7.96 sec vs baseline of 7.42 secs
     def forward(self, x):
-        # x.register_hook(print)
         out16 = checkpoint.checkpoint(self.custom(self.in_tr), x)
-        # out16 = self.in_tr(x)
-        # out32 = self.down_tr32(out16)
         out32 = checkpoint.checkpoint(self.custom(self.down_tr32), out16)
         out64 = checkpoint.checkpoint(self.custom(self.down_tr64), out32)
         out128 = checkpoint.checkpoint(self.custom(self.down_tr128), out64)
         out256 = checkpoint.checkpoint(self.custom(self.down_tr256), out128)
         out = checkpoint.checkpoint(self.custom(self.up_tr256), out256, out128)
         out = checkpoint.checkpoint(self.custom(self.up_tr128), out, out64)
-        # out = self.up_tr64(out, out32)
         out = checkpoint.checkpoint(self.custom(self.up_tr64), out, out32)
-        # out = checkpoint.checkpoint(self.custom(self.up_tr32), out, out16)
         out = self.up_tr32(out, out16)
         out = self.out_tr(out)
         return out

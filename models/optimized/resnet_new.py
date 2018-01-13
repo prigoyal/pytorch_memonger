@@ -258,20 +258,10 @@ class PreActResNet(nn.Module):
                 'PreActBottleneck_%d_%d' % (stage, i),
                 block(self.inplanes, planes))
 
-    def custom(self):
-        def custom_forward(start, end, modules):
-            def forward_extended(*inputs):
-                input = inputs[0]
-                for j in range(start, end + 1):
-                    input = modules[j](input)
-                return input
-            return forward_extended
-        return custom_forward
-
     def forward(self, x, chunks=3):
         modules = [module for k, module in self._modules.items()][0]
         input_var = Variable(x.data, requires_grad=True)
-        input_var = checkpoint_sequential(modules, chunks, self.custom(), input_var)
+        input_var = checkpoint_sequential(modules, chunks, input_var)
         input_var = input_var.view(input_var.size(0), -1)
         input_var = self.fc(input_var)
         return input_var
