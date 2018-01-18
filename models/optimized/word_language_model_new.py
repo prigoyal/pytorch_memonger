@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.utils.checkpoint as checkpoint
-from torch.autograd import Variable, Function
+from torch.autograd import Variable
 
-import math, pdb
+import math
 
 
 class RNNModel(nn.Module):
@@ -69,8 +69,6 @@ class RNNModel(nn.Module):
         chunk_size = int(math.floor(float(total_modules) / chunks))
         start, end = 0, -1
         emb = self.drop(self.encoder(input))
-
-        # output, hidden = self.rnn(emb, hidden)
 
         output = []
         for j in range(chunks):

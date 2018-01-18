@@ -144,10 +144,13 @@ class VNet(nn.Module):
         self.in_tr = InputTransition(16, elu)
         self.down_tr32 = DownTransition(16, 1, elu)
         self.down_tr64 = DownTransition(32, 2, elu)
-        self.down_tr128 = DownTransition(64, 3, elu, dropout=True)
-        self.down_tr256 = DownTransition(128, 2, elu, dropout=True)
-        self.up_tr256 = UpTransition(256, 256, 2, elu, dropout=True)
-        self.up_tr128 = UpTransition(256, 128, 2, elu, dropout=True)
+        # NOTE: Dropout is turned off since it can effect output if checkpointed
+        # in order to get away, try splitting the DownTransition in two parts
+        # 1st part: everything before dropout, 2nd part: everything after dropout
+        self.down_tr128 = DownTransition(64, 3, elu, dropout=False)
+        self.down_tr256 = DownTransition(128, 2, elu, dropout=False)
+        self.up_tr256 = UpTransition(256, 256, 2, elu, dropout=False)
+        self.up_tr128 = UpTransition(256, 128, 2, elu, dropout=False)
         self.up_tr64 = UpTransition(128, 64, 1, elu)
         self.up_tr32 = UpTransition(64, 32, 1, elu)
         self.out_tr = OutputTransition(32, elu, nll)
@@ -161,7 +164,6 @@ class VNet(nn.Module):
             return inputs
         return custom_forward
 
-    # fits 8 images - runtime is 7.96 sec vs baseline of 7.42 secs
     def forward(self, x):
         out16 = checkpoint.checkpoint(self.custom(self.in_tr), x)
         out32 = checkpoint.checkpoint(self.custom(self.down_tr32), out16)
@@ -174,16 +176,3 @@ class VNet(nn.Module):
         out = self.up_tr32(out, out16)
         out = self.out_tr(out)
         return out
-
-    # def forward(self, x):
-    #     out16 = self.in_tr(x)
-    #     out32 = self.down_tr32(out16)
-    #     out64 = self.down_tr64(out32)
-    #     out128 = self.down_tr128(out64)
-    #     out256 = self.down_tr256(out128)
-    #     out = self.up_tr256(out256, out128)
-    #     out = self.up_tr128(out, out64)
-    #     out = self.up_tr64(out, out32)
-    #     out = self.up_tr32(out, out16)
-    #     out = self.out_tr(out)
-    #     return out
