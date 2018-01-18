@@ -13,7 +13,7 @@ The application of checkpointing is showcased on various models:
 
 Results of checkpointing on these models are showcased below:
 
-<p align="center"><img src="tutorial/results.png"  width="40%" /></p>
+<p align="center"><img src="tutorial/results.png"  width="90%" /></p>
 
 In order to use the models, you need to install PyTorch master following instructions from [here](https://github.com/pytorch/pytorch/#from-source)
 
