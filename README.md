@@ -1,4 +1,4 @@
-# pytorch_memonger
+# PyTorch Memory optimizations via gradient checkpointing
 
 This repository contains implementation of various PyTorch models using the
 **gradient checkpointing**[1] which allows trading compute for memory and hence allows
