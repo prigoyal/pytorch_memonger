@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.utils.checkpoint as checkpoint
-from torch.autograd import Variable
 
 import math
 
@@ -46,10 +45,10 @@ class RNNModel(nn.Module):
     def init_hidden(self, bsz):
         weight = next(self.parameters()).data
         if self.rnn_type == 'LSTM':
-            return (Variable(weight.new(self.nlayers, bsz, self.nhid).zero_()),
-                    Variable(weight.new(self.nlayers, bsz, self.nhid).zero_()))
+            return (weight.new(self.nlayers, bsz, self.nhid).zero_(),
+                    weight.new(self.nlayers, bsz, self.nhid).zero_())
         else:
-            return Variable(weight.new(self.nlayers, bsz, self.nhid).zero_())
+            return weight.new(self.nlayers, bsz, self.nhid).zero_()
 
     def save_grad(self):
         def hook(grad):
@@ -58,6 +57,7 @@ class RNNModel(nn.Module):
 
     def custom(self, start, end):
         def custom_forward(*inputs):
+            # print('start: {} end: {}'.format(start, end))
             output, hidden = self.rnn(
                 inputs[0][start:(end+1)], (inputs[1], inputs[2])
             )
@@ -83,7 +83,8 @@ class RNNModel(nn.Module):
         hidden = (out[1], out[2])
 
         output = self.drop(output).view(output.size(0) * output.size(1), output.size(2))
-        out = Variable(output.data, requires_grad=True)
+        out = output.detach()
+        out.requires_grad = True
         out.register_hook(self.save_grad())
         total_modules = out.shape[0]
         chunks = 10

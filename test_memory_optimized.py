@@ -1,3 +1,4 @@
+import pdb
 import torch
 import torch.optim
 import torch.nn as nn
@@ -18,12 +19,14 @@ class TestMemoryOptimized(unittest.TestCase):
 
     def test_densenet_optim(self):
         N = 32
+        # N = 72
         chunks = 4
         total_iters = 20    # (warmup + benchmark)
         iterations = 1
 
-        x = Variable(torch.randn(N, 3, 224, 224).fill_(1.0), requires_grad=True)
-        target = Variable(torch.randn(N).fill_(1)).type("torch.LongTensor")
+        x = torch.ones(N, 3, 224, 224, requires_grad=True)
+        target = torch.ones(N).type("torch.LongTensor")
+
         # model = densenet_optimized.densenet100()
         # model = densenet_optimized.densenet121()
         # model = densenet_optimized.densenet201()
@@ -64,14 +67,14 @@ class TestMemoryOptimized(unittest.TestCase):
 
     def test_resnet_optim(self):
         N = 32
-        # N = 20
+        # N = 51
         total_iters = 20    # (warmup + benchmark)
         iterations = 1
         chunks = 6
 
-        target = Variable(torch.randn(N).fill_(1)).type("torch.LongTensor")
-        # x = Variable(torch.randn(N, 3, 224, 224).fill_(1.0), requires_grad=True)
-        x = Variable(torch.randn(N, 3, 32, 32).fill_(1.0), requires_grad=True)
+        target = torch.ones(N).type("torch.LongTensor")
+        # x = torch.ones(N, 3, 224, 224, requires_grad=True)
+        x = torch.ones(N, 3, 32, 32, requires_grad=True)
         # model = resnet_optim.resnet200()
         # model = resnet_optim.resnet101()
         # model = resnet_optim.resnet50()
@@ -127,8 +130,8 @@ class TestMemoryOptimized(unittest.TestCase):
         # total_iters = 10    # (warmup + benchmark)
         # iterations = 2
 
-        target = Variable(torch.randn(N, 1, 128, 128, 64).fill_(1)).type("torch.LongTensor")
-        x = Variable(torch.randn(N, 1, 128, 128, 64).fill_(1.0), requires_grad=True)
+        target = torch.ones(N, 1, 128, 128, 64).type("torch.LongTensor")
+        x = torch.ones(N, 1, 128, 128, 64, requires_grad=True)
         model = vnet_optim.VNet(elu=False, nll=True)
         bg_weight = 0.5
         fg_weight = 0.5
@@ -169,8 +172,8 @@ class TestMemoryOptimized(unittest.TestCase):
 
     def repackage_hidden(self, h):
         """Wraps hidden states in new Variables, to detach them from their history."""
-        if type(h) == Variable:
-            return Variable(h.data)
+        if type(h) == torch.autograd.Variable:
+            return h.detach()
         else:
             return tuple(self.repackage_hidden(v) for v in h)
 
@@ -187,10 +190,11 @@ class TestMemoryOptimized(unittest.TestCase):
         dropout = 0.2
         tied = False
         batchsize = 20
-        bptt = 8000
+        bptt = 7000
 
         data = Variable(torch.LongTensor(bptt, batchsize).fill_(1), volatile=False)
-        target_var = Variable(torch.LongTensor(bptt * batchsize).fill_(1))
+        # data = torch.ones(bptt, batchsize, volatile=False).type("torch.LongTensor")
+        target_var = torch.ones(bptt * batchsize).type("torch.LongTensor")
         targets = target_var.cuda()
         input_data = data.cuda()
 
