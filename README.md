@@ -28,7 +28,7 @@ python test_memory_optimized.py
 
 ## Tutorial
 
-We provide a [tutorial]() to describe how to use checkpointing for various kinds of
+We provide a [tutorial](https://github.com/prigoyal/pytorch_memonger/blob/master/tutorial/Checkpointing_for_PyTorch_models.ipynb) to describe how to use checkpointing for various kinds of
 models.
 
 There are few special kinds of layers like Batch normalization, dropout that should
