@@ -2,7 +2,6 @@ import torch.nn as nn
 import math
 import pdb, time, sys
 from collections import OrderedDict
-from torch.autograd import Variable, Function
 from torch.utils.checkpoint import checkpoint, checkpoint_sequential
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
@@ -258,9 +257,8 @@ class PreActResNet(nn.Module):
                 'PreActBottleneck_%d_%d' % (stage, i),
                 block(self.inplanes, planes))
 
-    def forward(self, x, chunks=3):
+    def forward(self, input_var, chunks=3):
         modules = [module for k, module in self._modules.items()][0]
-        input_var = Variable(x.data, requires_grad=True)
         input_var = checkpoint_sequential(modules, chunks, input_var)
         input_var = input_var.view(input_var.size(0), -1)
         input_var = self.fc(input_var)

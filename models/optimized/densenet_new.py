@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import pdb, math
-from torch.autograd import Variable, Function
 from torch.utils.checkpoint import checkpoint, checkpoint_sequential
 from collections import OrderedDict
 import os, time, sys
@@ -114,7 +113,8 @@ class DenseNet(nn.Module):
 
     def forward(self, x, chunks=None):
         modules = [module for k, module in self._modules.items()][0]
-        input_var = Variable(x.data, requires_grad=True)
+        input_var = x.detach()
+        input_var.requires_grad = True
         input_var = checkpoint_sequential(modules, chunks, input_var)
         input_var = F.relu(input_var, inplace=True)
         input_var = F.avg_pool2d(input_var, kernel_size=7, stride=1).view(input_var.size(0), -1)

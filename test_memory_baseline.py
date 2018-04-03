@@ -17,9 +17,9 @@ import models.baseline.vnet as vnet_baseline
 class TestMemoryBaseline(unittest.TestCase):
 
     def test_densenet_baseline(self):
-        N = 8
-        total_iters = 5    # (warmup + benchmark)
-        iterations = 4
+        N = 32
+        total_iters = 20    # (warmup + benchmark)
+        iterations = 1
 
         x = Variable(torch.randn(N, 3, 224, 224).fill_(1.0), requires_grad=True)
         target = Variable(torch.randn(N).fill_(1)).type("torch.LongTensor")
@@ -166,8 +166,8 @@ class TestMemoryBaseline(unittest.TestCase):
             return tuple(self.repackage_hidden(v) for v in h)
 
     def test_wlm_baseline(self):
-        total_iters = 20
-        iterations = 1
+        total_iters = 2
+        iterations = 10
 
         model_name = 'LSTM'
         ntokens = 33278
@@ -177,7 +177,7 @@ class TestMemoryBaseline(unittest.TestCase):
         dropout = 0.2
         tied = False
         batchsize = 20
-        bptt = 35
+        bptt = 800
 
         data = Variable(torch.LongTensor(bptt, batchsize).fill_(1), volatile=False)
         target_var = Variable(torch.LongTensor(bptt * batchsize).fill_(1))
